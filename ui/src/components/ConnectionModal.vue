@@ -4,7 +4,7 @@
   >
     <h3>Connect to Bitcoin Node</h3>
     <p class="text-muted mb-md-4">
-        Connect any wallet that supports Bitcoin Core's RPC or P2P connection to your node using these details.
+        Connect any wallet that supports Bitcoin Knots's RPC or P2P connection to your node using these details.
     </p>
     <div class="pb-2 pb-sm-3">
       <div class="row flex-column-reverse flex-lg-row">
@@ -30,7 +30,7 @@
               <b-col cols="12" lg="6">
                 <label class="mb-1 d-block"
                   ><small class="font-weight-bold"
-                    >Bitcoin Core RPC Username</small
+                    >Bitcoin Knots RPC Username</small
                   ></label
                 >
                 <input-copy
@@ -49,7 +49,7 @@
               <b-col cols="12" lg="6">
                 <label class="mb-1 d-block"
                   ><small class="font-weight-bold"
-                    >Bitcoin Core RPC Password</small
+                    >Bitcoin Knots RPC Password</small
                   ></label
                 >
                 <input-copy
@@ -68,7 +68,7 @@
               <b-col cols="12" lg="6">
                 <label class="mb-1 d-block"
                   ><small class="font-weight-bold"
-                    >Bitcoin Core RPC Address (Host)</small
+                    >Bitcoin Knots RPC Address (Host)</small
                   ></label
                 >
                 <input-copy
@@ -87,7 +87,7 @@
               <b-col cols="12" lg="6">
                 <label class="mb-1 d-block"
                   ><small class="font-weight-bold"
-                    >Bitcoin Core RPC Port</small
+                    >Bitcoin Knots RPC Port</small
                   ></label
                 >
                 <input-copy 
@@ -108,7 +108,7 @@
           <div v-if="chosenMode === 'p2pLocal' || chosenMode === 'p2pTor'">
             <label class="mb-1 d-block"
               ><small class="font-weight-bold"
-                >Bitcoin Core P2P Address (Host)</small
+                >Bitcoin Knots P2P Address (Host)</small
               ></label
             >
             <div v-if="p2p.torAddress">
@@ -120,7 +120,7 @@
             </div>
             <label class="mb-1 d-block"
               ><small class="font-weight-bold"
-                >Bitcoin Core P2P Port</small
+                >Bitcoin Knots P2P Port</small
               ></label
             >
             <div v-if="p2p.port">

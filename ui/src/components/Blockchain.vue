@@ -145,7 +145,7 @@ export default {
   },
   methods: {
     async fetchBlocks() {
-      // don't poll if bitcoin core isn't yet running
+      // don't poll if Bitcoin Knots isn't yet running
       if (!this.isBitcoinCoreOperational) {
         return;
       }

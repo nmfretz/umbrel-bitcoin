@@ -292,7 +292,7 @@ export default {
         );
 
         if (response.data.success) {
-          // reload the page to reset all state and show loading view while bitcoin core restarts.
+          // reload the page to reset all state and show loading view while Bitcoin Knots restarts.
           this.$router.push({ query: { restart: "1" } });
           window.location.reload();
         } else {
@@ -328,7 +328,7 @@ export default {
         this.$store.dispatch("user/getBitcoinConfig");
   
         if (response.data.success) {
-          // reload the page to reset all state and show loading view while bitcoin core restarts.
+          // reload the page to reset all state and show loading view while Bitcoin Knots restarts.
           this.$router.push({ query: { restart: "1" } });
           window.location.reload();
         } else {
@@ -347,11 +347,11 @@ export default {
     }
   },
   async created() {
-    // fetch settings first because bitcoin core
+    // fetch settings first because Bitcoin Knots
     // is not operational if pruning is in progress
     this.fetchBitcoinConfigSettings();
 
-    // wait until bitcoin core is operational
+    // wait until Bitcoin Knots is operational
     while (true) { /* eslint-disable-line */
       await this.$store.dispatch("bitcoin/getStatus");
       if (this.isBitcoinCoreOperational) {
