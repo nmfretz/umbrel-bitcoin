@@ -717,6 +717,64 @@
               </div>
             </b-card-body>
 
+            <!-- REJECTPARASITES -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Relay parasitic transactions
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          rejectparasites
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div>
+                    <toggle-switch
+                      id="rejectparasites"
+                      class="align-self-center"
+                      :on="settings.rejectparasites"
+                      @toggle="status => (settings.rejectparasites = status)"
+                    ></toggle-switch>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Relay parasitic transactions that are non monetary.
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- REJECTTOKENS -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Relay tokens transactions
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          rejecttokens
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div>
+                    <toggle-switch
+                      id="rejecttokens"
+                      class="align-self-center"
+                      :on="settings.rejecttokens"
+                      @toggle="status => (settings.rejecttokens = status)"
+                    ></toggle-switch>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Relay tokens transactions (runes).
+                </small>
+              </div>
+            </b-card-body>
+
             <!-- PERMITBAREMULTISIG -->
             <b-card-body class="subsetting-body px-2 px-sm-3">
               <div>

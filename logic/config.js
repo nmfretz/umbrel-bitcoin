@@ -38,6 +38,8 @@ const DEFAULT_ADVANCED_SETTINGS = {
   datacarrier: true,
   datacarriersize: 42,
   permitbaremultisig: false,
+  rejectparasites: true,
+  rejecttokens: false,
   maxorphantx: 100,
   reindex: false,
   // RPC/REST
@@ -173,6 +175,18 @@ function settingsToMultilineConfString(settings) {
   if (settings.permitbaremultisig) {
     umbrelBitcoinConfig.push("# Relay non-P2SH multisig.");
     umbrelBitcoinConfig.push('permitbaremultisig=1');
+  }
+
+  // rejectparasites
+  if (!settings.rejectparasites) {
+    umbrelBitcoinConfig.push("# Do not relay transactions that are considered parasitic.");
+    umbrelBitcoinConfig.push('rejectparasites=0');
+  }
+
+  // rejecttokens
+  if (settings.rejecttokens) {
+    umbrelBitcoinConfig.push("# Reject transactions that create tokens.");
+    umbrelBitcoinConfig.push(`rejecttokens=1`);
   }
 
   // maxorphantx

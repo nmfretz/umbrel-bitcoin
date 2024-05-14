@@ -102,6 +102,12 @@ function validateSettingsRequest(settings) {
   // Datacarriersize
   checkBooleanSetting({ setting: settings.permitbaremultisig, settingName: "permitbaremultisig" });
 
+  // rejectparasites
+  checkBooleanSetting({ settiing: settings.rejectparasites, settingName: "rejectparasites" });
+
+  //rejecttokens
+  checkBooleanSetting({ setting: settings.rejecttokens, settingName: "rejecttokens" });
+
   // Max Orphan Transactions
   // No min or max specified. 
   checkNumberSetting({ setting: settings.maxorphantx, settingName: "Max Orphan Transactions", min: 0 });
