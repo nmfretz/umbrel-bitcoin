@@ -103,7 +103,7 @@ function validateSettingsRequest(settings) {
   checkBooleanSetting({ setting: settings.permitbaremultisig, settingName: "permitbaremultisig" });
 
   // rejectparasites
-  checkBooleanSetting({ settiing: settings.rejectparasites, settingName: "rejectparasites" });
+  checkBooleanSetting({ setting: settings.rejectparasites, settingName: "rejectparasites" });
 
   //rejecttokens
   checkBooleanSetting({ setting: settings.rejecttokens, settingName: "rejecttokens" });
