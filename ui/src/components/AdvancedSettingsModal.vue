@@ -724,7 +724,7 @@
                   <div class="flex-sm-grow-1">
                     <label class="mb-0" for="mempool">
                       <p class="subsetting-title font-weight-bold mb-0 mr-1">
-                        Relay parasitic transactions
+                        Reject parasitic transactions
                         <span class="subsetting-config-name text-monospace font-weight-normal d-block">
                           rejectparasites
                         </span>
@@ -741,7 +741,7 @@
                   </div>
                 </div>
                 <small class="w-lg-75 d-block text-muted mt-1">
-                  Reject parasitic transactions that are non monetary.
+                  Reject parasitic transactions that are non-monetary.
                 </small>
               </div>
             </b-card-body>
@@ -753,7 +753,7 @@
                   <div class="flex-sm-grow-1">
                     <label class="mb-0" for="mempool">
                       <p class="subsetting-title font-weight-bold mb-0 mr-1">
-                        Relay tokens transactions
+                        Reject tokens transactions
                         <span class="subsetting-config-name text-monospace font-weight-normal d-block">
                           rejecttokens
                         </span>
@@ -770,7 +770,7 @@
                   </div>
                 </div>
                 <small class="w-lg-75 d-block text-muted mt-1">
-                  Reject tokens transactions (runes).
+                  Reject token transactions (runes).
                 </small>
               </div>
             </b-card-body>
