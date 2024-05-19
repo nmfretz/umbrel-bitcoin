@@ -741,7 +741,7 @@
                   </div>
                 </div>
                 <small class="w-lg-75 d-block text-muted mt-1">
-                  Relay parasitic transactions that are non monetary.
+                  Reject parasitic transactions that are non monetary.
                 </small>
               </div>
             </b-card-body>
@@ -770,7 +770,7 @@
                   </div>
                 </div>
                 <small class="w-lg-75 d-block text-muted mt-1">
-                  Relay tokens transactions (runes).
+                  Reject tokens transactions (runes).
                 </small>
               </div>
             </b-card-body>
