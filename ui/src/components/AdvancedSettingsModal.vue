@@ -823,6 +823,7 @@
                       <b-form-input
                         class="advanced-settings-input"
                         id="minrelaytxfee"
+                        step="0.00001"
                         type="number"
                         v-model="settings.minrelaytxfee"
                         number
@@ -1168,6 +1169,7 @@
                     <b-input-group append="bytes">
                       <b-form-input
                         class="advanced-settings-input"
+                        step="0.00001"
                         id="dustrelayfee"
                         type="number"
                         v-model="settings.dustrelayfee"
