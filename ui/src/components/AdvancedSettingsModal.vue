@@ -1182,6 +1182,102 @@
               </div>
             </b-card-body>
 
+            <!-- blockmaxsize -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Max block size in bytes
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          blockmaxsize
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="blockmaxsize"
+                        type="number"
+                        v-model="settings.blockmaxsize"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Set maximum block size in bytes
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- blockmaxweight -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Max block size in weight
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          blockmaxweight
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="blockmaxweight"
+                        type="number"
+                        v-model="settings.blockmaxweight"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Set maximum BIP141 block weight
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- blockreconstructionextratxn -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Number of transactions to keep in memory for reconstruction
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          blockreconstructionextratxn
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="blockreconstructionextratxn"
+                        type="number"
+                        v-model="settings.blockreconstructionextratxn"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Extra transactions to keep in memory for compact block reconstructions
+                </small>
+              </div>
+            </b-card-body>
+
             <!-- PRUNE -->
             <b-card-body class="subsetting-body px-2 px-sm-3">
               <div>

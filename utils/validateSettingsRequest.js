@@ -141,6 +141,15 @@ function validateSettingsRequest(settings) {
   // dustrelayfee
   checkNumberSetting({ setting: settings.dustrelayfee, settingName: "dustrelayfee", min: 0 });
 
+  // blockmaxsize
+  checkNumberSetting({ setting: settings.blockmaxsize, settingName: "blockmaxsize", min: 0 });
+
+  // blockmaxweight
+  checkNumberSetting({ setting: settings.blockmaxweight, settingName: "blockmaxweight", min: 0 });
+  
+  // blockreconstructionextratxn
+  checkNumberSetting({ setting: settings.blockreconstructionextratxn, settingName: "blockreconstructionextratxn", min: 0 });
+
   // acceptnonstddatacarrier
   checkBooleanSetting({ setting: settings.acceptnonstddatacarrier, settingName: "acceptnonstddatacarrier" });
 

@@ -52,6 +52,9 @@ const DEFAULT_ADVANCED_SETTINGS = {
   datacarriercost: 1,
   acceptnonstddatacarrier: false,
   dustrelayfee: 0.00003,
+  blockmaxsize: 3985000,
+  blockmaxweight: 3985000,
+  blockreconstructionextratxn: 1000000,
   maxorphantx: 100,
   reindex: false,
   // RPC/REST
@@ -252,6 +255,18 @@ function settingsToMultilineConfString(settings) {
   // dustrelayfee
   umbrelBitcoinConfig.push("# Fee rate (in BTC/kvB) used to define dust, the value of an output such that it will cost more than its value in fees at this fee rate to spend it.");
   umbrelBitcoinConfig.push(`dustrelayfee=${settings.dustrelayfee}`);
+
+  // blockmaxsize
+  umbrelBitcoinConfig.push("# Set maximum block size in bytes");
+  umbrelBitcoinConfig.push(`blockmaxsize=${settings.blockmaxsize}`);
+
+  // blockmaxweight
+  umbrelBitcoinConfig.push("# Set maximum BIP141 block weight");
+  umbrelBitcoinConfig.push(`blockmaxweight=${settings.blockmaxweight}`);
+
+  // blockreconstructionextratxn
+  umbrelBitcoinConfig.push("# Extra transactions to keep in memory for compact block reconstructions");
+  umbrelBitcoinConfig.push(`blockreconstructionextratxn=${settings.blockreconstructionextratxn}`);
 
   // maxorphantx
   umbrelBitcoinConfig.push("# Maximum number of orphan transactions to be kept in memory.");
