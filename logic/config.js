@@ -40,6 +40,18 @@ const DEFAULT_ADVANCED_SETTINGS = {
   permitbaremultisig: false,
   rejectparasites: true,
   rejecttokens: false,
+  minrelaytxfee: 0.00001,
+  bytespersigop: 20,
+  bytespersigopstrict: 20,
+  limitancestorcount: 25,
+  limitancestorsize: 101,
+  limitdescendantcount: 25,
+  limitdescendantsize: 101,
+  permitbarepubkey: false,
+  maxscriptsize: 1650,
+  datacarriercost: 1,
+  acceptnonstddatacarrier: false,
+  dustrelayfee: 0.00003,
   maxorphantx: 100,
   reindex: false,
   // RPC/REST
@@ -188,6 +200,58 @@ function settingsToMultilineConfString(settings) {
     umbrelBitcoinConfig.push("# Reject transactions that create tokens.");
     umbrelBitcoinConfig.push(`rejecttokens=1`);
   }
+
+  // minrelaytxfee
+  umbrelBitcoinConfig.push("# Min Transaction Relay Fee");
+  umbrelBitcoinConfig.push(`minrelaytxfee=${settings.minrelaytxfee}`);
+
+  // bytespersigop
+  umbrelBitcoinConfig.push("# Equivalent bytes per sigop in transactions for relay and mining");
+  umbrelBitcoinConfig.push(`bytespersigop=${settings.bytespersigop}`);
+
+  // bytespersigopstrict
+  umbrelBitcoinConfig.push("# Minimum bytes per sigop in transactions we relay and mine");
+  umbrelBitcoinConfig.push(`bytespersigopstrict=${settings.bytespersigopstrict}`);
+
+  // limitancestorcount
+  umbrelBitcoinConfig.push("# Do not accept transactions if number of in-mempool ancestors is <n> or more");
+  umbrelBitcoinConfig.push(`limitancestorcount=${settings.limitancestorcount}`);
+
+  // limitancestorsize
+  umbrelBitcoinConfig.push("# Do not accept transactions whose size with all in-mempool ancestors exceeds <n> kilobytes");
+  umbrelBitcoinConfig.push(`limitancestorsize=${settings.limitancestorsize}`);
+
+  // limitdescendantcount
+  umbrelBitcoinConfig.push("# Do not accept transactions if any ancestor would have <n> or more in-mempool descendants");
+  umbrelBitcoinConfig.push(`limitdescendantcount=${settings.limitdescendantcount}`);
+
+  // limitdescendantsize
+  umbrelBitcoinConfig.push("# Do not accept transactions if any ancestor would have more than <n> kilobytes of in-mempool descendants");
+  umbrelBitcoinConfig.push(`limitdescendantsize=${settings.limitdescendantsize}`);
+
+  // permitbarepubkey
+  if (settings.permitbarepubkey) {
+    umbrelBitcoinConfig.push("# Relay legacy pubkey outputs");
+    umbrelBitcoinConfig.push('permitbarepubkey=1');
+  }
+
+  // maxscriptsize
+  umbrelBitcoinConfig.push("# Maximum size of scripts we relay and mine, in bytes");
+  umbrelBitcoinConfig.push(`maxscriptsize=${settings.maxscriptsize}`);
+
+  // datacarriercost
+  umbrelBitcoinConfig.push("# Treat extra data in transactions as at least N vbytes per actual byte");
+  umbrelBitcoinConfig.push(`datacarriercost=${settings.datacarriercost}`);
+
+  // acceptnonstddatacarrier
+  if (settings.acceptnonstddatacarrier) {
+    umbrelBitcoinConfig.push("# Relay and mine non-OP_RETURN datacarrier injection");
+    umbrelBitcoinConfig.push('acceptnonstddatacarrier=1');
+  }
+
+  // dustrelayfee
+  umbrelBitcoinConfig.push("# Fee rate (in BTC/kvB) used to define dust, the value of an output such that it will cost more than its value in fees at this fee rate to spend it.");
+  umbrelBitcoinConfig.push(`dustrelayfee=${settings.dustrelayfee}`);
 
   // maxorphantx
   umbrelBitcoinConfig.push("# Maximum number of orphan transactions to be kept in memory.");

@@ -108,6 +108,42 @@ function validateSettingsRequest(settings) {
   //rejecttokens
   checkBooleanSetting({ setting: settings.rejecttokens, settingName: "rejecttokens" });
 
+  // minrelaytxfee
+  checkNumberSetting({ setting: settings.minrelaytxfee, settingName: "minrelaytxfee", min: 0 });
+
+  // bytespersigopstrict
+  checkNumberSetting({ setting: settings.bytespersigopstrict, settingName: "bytespersigopstrict", min: 0 });
+
+  // bytespersigop
+  checkNumberSetting({ setting: settings.bytespersigop, settingName: "bytespersigop", min: 0 });
+
+  // limitancestorcount
+  checkNumberSetting({ setting: settings.limitancestorcount, settingName: "limitancestorcount", min: 0 });
+
+  // limitancestorsize
+  checkNumberSetting({ setting: settings.limitancestorsize, settingName: "limitancestorsize", min: 0 });
+
+  // limitdescendantcount
+  checkNumberSetting({ setting: settings.limitdescendantcount, settingName: "limitdescendantcount", min: 0 });
+
+  // limitdescendantsize
+  checkNumberSetting({ setting: settings.limitdescendantsize, settingName: "limitdescendantsize", min: 0 });
+
+  // permitbarepubkey
+  checkBooleanSetting({ setting: settings.permitbarepubkey, settingName: "permitbarepubkey" });
+
+  // maxscriptsize
+  checkNumberSetting({ setting: settings.maxscriptsize, settingName: "maxscriptsize", min: 0 });
+
+  // datacarriercost
+  checkNumberSetting({ setting: settings.datacarriercost, settingName: "datacarriercost", min: 0 });
+
+  // dustrelayfee
+  checkNumberSetting({ setting: settings.dustrelayfee, settingName: "dustrelayfee", min: 0 });
+
+  // acceptnonstddatacarrier
+  checkBooleanSetting({ setting: settings.acceptnonstddatacarrier, settingName: "acceptnonstddatacarrier" });
+
   // Max Orphan Transactions
   // No min or max specified. 
   checkNumberSetting({ setting: settings.maxorphantx, settingName: "Max Orphan Transactions", min: 0 });

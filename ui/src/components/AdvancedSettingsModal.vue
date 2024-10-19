@@ -804,6 +804,384 @@
               </div>
             </b-card-body>
 
+            <!-- minrelaytxfee -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Min Transaction Relay Fee
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          minrelaytxfee
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="minrelaytxfee"
+                        type="number"
+                        v-model="settings.minrelaytxfee"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Fee rates (in BTC/kB) smaller than this are considered zero fee for relaying, mining and transaction creation
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- bytespersigop -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Bytes Per Sigop
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          bytespersigop
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="bytespersigop"
+                        type="number"
+                        v-model="settings.bytespersigop"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Equivalent bytes per sigop in transactions for relay and mining
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- bytespersigopstrict -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Bytes Per Sigop Strict
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          bytespersigopstrict
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="bytespersigopstrict"
+                        type="number"
+                        v-model="settings.bytespersigopstrict"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Minimum bytes per sigop in transactions we relay and mine
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- limitancestorcount -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Max Ancestor Count
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          limitancestorcount
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="limitancestorcount"
+                        type="number"
+                        v-model="settings.limitancestorcount"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Do not accept transactions if number of in-mempool ancestors is <n> or more
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- limitancestorsize -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Max Ancestor Size
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          limitancestorsize
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="limitancestorsize"
+                        type="number"
+                        v-model="settings.limitancestorsize"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Do not accept transactions whose size with all in-mempool ancestors exceeds <n> kilobytes
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- limitdescendantcount -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Max descendants count
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          limitdescendantcount
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="limitdescendantcount"
+                        type="number"
+                        v-model="settings.limitdescendantcount"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Do not accept transactions if any ancestor would have <n> or more in-mempool descendants
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- limitdescendantsize -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Max descendants size
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          limitdescendantsize
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="limitdescendantsize"
+                        type="number"
+                        v-model="settings.limitdescendantsize"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Do not accept transactions if any ancestor would have more than <n> kilobytes of in-mempool descendants
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- permitbarepubkey -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Permit Bare Pubkey
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          permitbarepubkey
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div>
+                    <toggle-switch
+                      id="permitbarepubkey"
+                      class="align-self-center"
+                      :on="settings.permitbarepubkey"
+                      @toggle="status => (settings.permitbarepubkey = status)"
+                    ></toggle-switch>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Relay legacy pubkey outputs.
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- maxscriptsize -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Max Script Size
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          maxscriptsize
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="maxscriptsize"
+                        type="number"
+                        v-model="settings.maxscriptsize"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Maximum size of scripts we relay and mine, in bytes
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- datacarriercost -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Datacarrier cost
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          datacarriercost
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="datacarriercost"
+                        type="number"
+                        v-model="settings.datacarriercost"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Treat extra data in transactions as at least N vbytes per actual byte
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- acceptnonstddatacarrier -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Datacarrier cost
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          acceptnonstddatacarrier
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div>
+                    <toggle-switch
+                      id="acceptnonstddatacarrier"
+                      class="align-self-center"
+                      :on="settings.acceptnonstddatacarrier"
+                      @toggle="status => (settings.acceptnonstddatacarrier = status)"
+                    ></toggle-switch>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Treat extra data in transactions as at least N vbytes per actual byte
+                </small>
+              </div>
+            </b-card-body>
+
+            <!-- dustrelayfee -->
+            <b-card-body class="subsetting-body px-2 px-sm-3">
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="flex-sm-grow-1">
+                    <label class="mb-0" for="mempool">
+                      <p class="subsetting-title font-weight-bold mb-0 mr-1">
+                        Dust Relay Fee
+                        <span class="subsetting-config-name text-monospace font-weight-normal d-block">
+                          dustrelayfee
+                        </span>
+                      </p>
+                    </label>
+                  </div>
+                  <div class="input-container ml-1">
+                    <b-input-group append="bytes">
+                      <b-form-input
+                        class="advanced-settings-input"
+                        id="dustrelayfee"
+                        type="number"
+                        v-model="settings.dustrelayfee"
+                        number
+                      ></b-form-input>
+                    </b-input-group>
+                  </div>
+                </div>
+                <small class="w-lg-75 d-block text-muted mt-1">
+                  Fee rate (in BTC/kvB) used to define dust, the value of an output such that it will cost more than its value in fees at this fee rate to spend it.
+                </small>
+              </div>
+            </b-card-body>
+
             <!-- PRUNE -->
             <b-card-body class="subsetting-body px-2 px-sm-3">
               <div>
