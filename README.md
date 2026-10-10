@@ -1,3 +1,5 @@
+> **Bitcoin Roots fork.** This repository builds the Umbrel Bitcoin Node app powered by [Bitcoin Roots](https://bitcoinroots.org) ([LuganoPlanB/bitcoin-roots](https://github.com/LuganoPlanB/bitcoin-roots)) instead of Bitcoin Core. It tracks [`getumbrel/umbrel-bitcoin`](https://github.com/getumbrel/umbrel-bitcoin) and changes only what is needed to swap the node: the bundled binaries (downloaded and verified from Bitcoin Roots releases in `apps/backend/Dockerfile`), the bundled version list, and version-gated settings metadata and defaults in `libs/settings/settings.meta.ts`. Images are published to `ghcr.io/tiero/umbrel-bitcoin-roots` and consumed by the `bitcoin-roots` Umbrel App Store package.
+
 <p align="center">
   <a href="https://apps.umbrel.com/app/bitcoin">
     <img src="https://github.com/user-attachments/assets/b9ff1e96-f899-41e3-8295-3247b88f6f79" alt="Logo">

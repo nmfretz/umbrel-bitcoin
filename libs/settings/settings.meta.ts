@@ -4,13 +4,13 @@
 // - The frontend settings page (React form inputs, descriptions, tool-tips, etc.)
 // To add a new bitcoin.conf option, just add a new block to the `settingsMetadata` object and check that it is being written to the conf file correctly.
 
-// Available Bitcoin Core versions
+// Available Bitcoin Roots versions
 // IMPORTANT:
 // - Any version added here needs to be added in the Dockerfile
 // - The array of versions must be newest → oldest. We do a simple index comparison to compare versions, so lower index = newer.
-export const AVAILABLE_BITCOIN_CORE_VERSIONS = ['v31.1', 'v31.0', 'v30.3', 'v30.2', 'v30.0', 'v29.4', 'v29.2'] as const
+export const AVAILABLE_BITCOIN_CORE_VERSIONS = ['v30.3-roots.1'] as const
 
-// Default Bitcoin Core version used by bitcoind manager (always the newest version in the array)
+// Default Bitcoin Roots version used by bitcoind manager (always the newest version in the array)
 export const DEFAULT_BITCOIN_CORE_VERSION = AVAILABLE_BITCOIN_CORE_VERSIONS[0]
 export type BitcoinCoreVersion = (typeof AVAILABLE_BITCOIN_CORE_VERSIONS)[number]
 
@@ -120,42 +120,6 @@ export const settingsMetadata = {
 			},
 		},
 		disabledMessage: 'Both Clearnet and Tor outgoing connections must be enabled to enable this',
-	},
-
-	privatebroadcast: {
-		tab: 'peers',
-		kind: 'toggle',
-		label: 'Privately Broadcast Transactions',
-		bitcoinLabel: 'privatebroadcast',
-		description:
-			"Broadcast transactions submitted by connected apps through Bitcoin Core's sendrawtransaction interface over dedicated, short-lived connections routed through Tor or I2P. This helps conceal the originating IP address and makes separate transactions harder to link.",
-		subDescription:
-			"Requires Tor or I2P to be enabled for outgoing connections. It is incompatible with the connect option in Custom bitcoin.conf overrides; Bitcoin Core will not start with both enabled. A privately broadcast transaction will not appear in your node's mempool until another peer relays it back. Transactions sent by Bitcoin Core's built-in wallet are not affected.",
-		default: false,
-		// Although introduced in v31.0, only expose this from v31.1. Bitcoin Core v31.1 fixes an IP address
-		// leak where some private broadcast connections could be made over clearnet instead of the privacy network.
-		// https://github.com/bitcoin/bitcoin/blob/master/doc/release-notes/release-notes-31.1.md#privatebroadcast
-		introducedIn: 'v31.1',
-		disabledWhen: {
-			onlynet: (v: unknown) => {
-				const onlynets = v as string[]
-				return !onlynets.includes('tor') && !onlynets.includes('i2p')
-			},
-		},
-		disabledMessage: 'At least one outgoing Tor or I2P network must be enabled',
-	},
-
-	asmap: {
-		tab: 'peers',
-		kind: 'toggle',
-		label: 'Diversify Clearnet Peers Across Providers',
-		bitcoinLabel: 'asmap',
-		description:
-			"Use Bitcoin Core's bundled map to group IPv4 and IPv6 peers by their internet provider or hosting network (Autonomous System) when selecting connections. This improves peer diversity by helping prevent too many of your peers from coming from the same network.",
-		subDescription:
-			'Only affects clearnet peer selection. It does not hide your IP address or route traffic through Tor.',
-		default: false,
-		introducedIn: 'v31.0',
 	},
 
 	listen: {
@@ -382,21 +346,6 @@ export const settingsMetadata = {
 		disabledMessage: 'automatically disabled when pruning is enabled',
 	},
 
-	txospenderindex: {
-		tab: 'optimization',
-		kind: 'toggle',
-		label: 'Transaction Output Spender Index',
-		bitcoinLabel: 'txospenderindex',
-		description:
-			'Build an index that lets connected apps quickly find which confirmed transaction spent a particular Bitcoin transaction output.',
-		subDescription:
-			'⚠ Requires significant additional storage that grows over time and a lengthy initial indexing pass. It cannot be used with pruning; enabling pruning automatically disables it. Disabling it later does not delete its existing index data. Enable it only if a connected app or custom integration uses gettxspendingprevout.',
-		default: false,
-		introducedIn: 'v31.0',
-		disabledWhen: {prune: (v: unknown) => (v as number) > 0},
-		disabledMessage: 'automatically disabled when pruning is enabled',
-	},
-
 	// mempoolfullrbf - no longer an option as of Core 28.0.0
 
 	datacarrier: {
@@ -415,17 +364,13 @@ export const settingsMetadata = {
 		bitcoinLabel: 'datacarriersize',
 		description: 'Set the maximum size of the data in OP_RETURN outputs (in bytes) that your node will relay.',
 		subDescription: 'Note: datacarrier must be enabled for this setting to take effect.',
-		// Bitcoin Core v30 default changed from 83 to 100_000.
-		// We never overwrite a users saved value, so only fresh installs will get initially set to the new default.
-		default: 100_000,
+		// Bitcoin Roots restores the pre-v30 conservative default of 83 bytes on the Core v30.3 base
+		// (Bitcoin Core v30 raised the default to 100_000). The limit remains configurable up to the Core v30 max.
+		// We never overwrite a users saved value, so only fresh installs will get initially set to this default.
+		default: 83,
 		min: 0,
 		max: 100_000,
 		unit: 'bytes',
-		versionOverrides: {
-			// v30.0 changed the default and max, so v29.x releases retain the previous values.
-			'v29.4': {default: 83, max: 83},
-			'v29.2': {default: 83, max: 83},
-		},
 	},
 
 	permitbaremultisig: {
@@ -434,7 +379,8 @@ export const settingsMetadata = {
 		label: 'Relay Bare Multisig Transactions',
 		bitcoinLabel: 'permitbaremultisig',
 		description: 'Relay non-P2SH multisig transactions.',
-		default: true,
+		// Bitcoin Roots disables bare-multisig (and bare-pubkey) relay by default; Bitcoin Core defaults to true.
+		default: false,
 	},
 
 	maxmempool: {
@@ -475,9 +421,9 @@ export const settingsMetadata = {
 		description:
 			'Sets the minimum fee rate your node will accept for relaying, mining, transaction creation, and mempool admission. Transactions below this threshold will be neither relayed nor accepted into your mempool.',
 		subDescription: '⚠ It is recommended to also change incrementalrelayfee when changing this setting.',
-		// Default based on Bitcoin Core v30 help: ~0.1 sat/vB
-		// backported to v29.x so packaged v29.2 has these same defaults (https://github.com/bitcoin/bitcoin/pull/33226)
-		default: 0.1,
+		// Bitcoin Roots keeps the conservative default minimum relay fee of 1000 sat/kvB (1 sat/vB),
+		// where Bitcoin Core v30 defaults to ~0.1 sat/vB.
+		default: 1,
 		min: 0,
 		// Max derived from Core MoneyRange(MAX_MONEY): 21,000,000 BTC/kvB → 2_100_000_000_000 sat/vB
 		// Core rejects out-of-range values (errors on startup) and does not clamp.
@@ -524,20 +470,6 @@ export const settingsMetadata = {
 		default: true,
 	},
 
-	maxorphantx: {
-		tab: 'optimization',
-		kind: 'number',
-		label: 'Max Orphan Transactions',
-		bitcoinLabel: 'maxorphantx',
-		description:
-			"Set the maximum number of orphan transactions (transactions missing one or more of their inputs) that your node will keep in memory. By fine-tuning it, you can optimize your node's memory usage and manage its performance based on your device's capabilities. A larger limit allows your node to store more orphan transactions, potentially increasing the chances of finding missing inputs. A smaller limit conserves memory but will result in your node evicting some orphan transactions from memory when the limit is reached.",
-		step: 1,
-		default: 100,
-		unit: 'txs',
-		// This setting was removed in Core v30.0, so we exclude it from that version onward
-		removedIn: 'v30.0',
-	},
-
 	/* ===== Interfaces tab ===== */
 	rest: {
 		tab: 'rpc-rest',
@@ -572,11 +504,8 @@ export const settingsMetadata = {
 		description:
 			'Allow apps on your Umbrel to connect to Bitcoin Core over its IPC mining interface. This is required for Stratum V2 apps to request block templates and submit mined blocks from your node.',
 		subDescription:
-			'Requires Bitcoin Core v30.2 or newer. This uses Bitcoin Core multiprocess mode and its experimental IPC interface. Leave this disabled unless an app you use requires it.',
+			'Requires Bitcoin Roots v30.3-roots.1 or newer. This uses the multiprocess mode and experimental IPC interface inherited from Bitcoin Core. Leave this disabled unless an app you use requires it.',
 		default: false,
-		// Bitcoin Core v30.0 was removed from the standard upstream download path after the wallet migration bug.
-		// We intentionally avoid a special-case rebuild of that withdrawn release, so IPC support starts at v30.2.
-		introducedIn: 'v30.2',
 	},
 
 	/* ===== Version tab ===== */
@@ -584,21 +513,17 @@ export const settingsMetadata = {
 	version: {
 		tab: 'version',
 		kind: 'select',
-		label: 'Bitcoin Core Version',
+		label: 'Bitcoin Roots Version',
 		bitcoinLabel: 'version',
 		description:
-			'Select whether to always run the latest version of Bitcoin Core available in the Bitcoin Node app, or stay on a specific version until you change it manually. Your Bitcoin Node app will continue to receive updates from the Umbrel App Store even if you decide to stay on a specific version.',
+			'Select whether to always run the latest version of Bitcoin Roots available in the Bitcoin Roots app, or stay on a specific version until you change it manually. Your Bitcoin Roots app will continue to receive updates from the Umbrel App Store even if you decide to stay on a specific version.',
 		subDescription:
 			'⚠ If you choose to stay on a specific version, please make sure your chosen version is up to date with the latest security fixes.',
 		options: [
 			{value: LATEST, label: 'Always use the latest version'},
-			// Preserve existing v30.0 pins, but hide the withdrawn release from users who are not already pinned.
-			// Bitcoin Core withdrew it because a failed wallet migration could delete files from the wallet directory.
-			// https://bitcoincore.org/en/2026/01/05/wallet-migration-bug/
 			...AVAILABLE_BITCOIN_CORE_VERSIONS.map((version) => ({
 				value: version,
 				label: version,
-				selectable: version !== 'v30.0',
 			})),
 		],
 		default: LATEST,

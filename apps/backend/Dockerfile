@@ -8,19 +8,36 @@
 #  – compiled backend
 #  – bundled React UI (Vite output → dist/public)
 #  – compiled shared libs (libs/settings, libs/shared-types)
-#  – Bitcoin Core binaries
+#  – Bitcoin Roots binaries
 
 ###########################################
-# Bitcoin Core
 ###########################################
-# https://github.com/getumbrel/docker-bitcoind
-FROM ghcr.io/getumbrel/docker-bitcoind:v31.1@sha256:e0a94f8390f4fee796faba306719860a1ba61e8fa841416bca26fd4e1e94cb8c AS bitcoind_31_1
-FROM ghcr.io/getumbrel/docker-bitcoind:v31.0@sha256:89185fc2792a9824cbe18f7ad4ead02a3a9a14adf5b34eb42f60ebec36201fa0 AS bitcoind_31_0
-FROM ghcr.io/getumbrel/docker-bitcoind:v30.3@sha256:eb0ceb12b51a884943e92c76cdbb80205e2c29d936d0cdd48845074b6f5f4c06 AS bitcoind_30_3
-FROM ghcr.io/getumbrel/docker-bitcoind:v30.2@sha256:28d1630adbf31fddcc1536954066b03de555ccd98e12aa48479e48da03ce076b AS bitcoind_30_2
-FROM ghcr.io/getumbrel/docker-bitcoind:v30.0@sha256:f5826a32aed9287cc5ffdec0996f5272634c4b346529cb8627224986ff555101 AS bitcoind_30_0
-FROM ghcr.io/getumbrel/docker-bitcoind:v29.4@sha256:6d2fe6b5016f3dc9e0dc9acb099282fb1c4defc54a904ea052a8a9e74a9cad87 AS bitcoind_29_4
-FROM ghcr.io/getumbrel/docker-bitcoind:v29.2@sha256:381c3df19bb16bc5f5e99998de84225a5838754903a6bb75dcea529354d91120 AS bitcoind_29_2
+# Bitcoin Roots
+###########################################
+# Downloads and verifies the Bitcoin Roots release binaries for the target
+# architecture. Checksums are the SHA-512 digests published in the release's
+# signed SHA512SUMS manifest.
+# https://github.com/LuganoPlanB/bitcoin-roots
+FROM --platform=$BUILDPLATFORM debian:bookworm-slim AS bitcoind_30_3_roots_1
+ARG TARGETARCH
+ARG ROOTS_VERSION=30.3-roots.1
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates curl \
+ && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    case "${TARGETARCH}" in \
+      amd64) roots_arch='x86_64';  roots_sha512='9aa635a2aa680dcb5d1f872ec95b208cf6825dab14b86f1b721fbfebe1116ac4dd3405fadc33b5b5deac7eb6b1063a3b10c85de59bbd496664034034f88adddf' ;; \
+      arm64) roots_arch='aarch64'; roots_sha512='fa84500586028c625968e7de9c9a3533016ae8295c50af4bc28e26464d0161fda31bf4fd6f13e23c2072d9107a5b6410ad7d378cb5c32004cab58602fab9f201' ;; \
+      *) echo "Unsupported TARGETARCH: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL -o /tmp/bitcoin-roots.tar.gz "https://github.com/LuganoPlanB/bitcoin-roots/releases/download/v${ROOTS_VERSION}/bitcoin-roots-linux-${roots_arch}.tar.gz"; \
+    echo "${roots_sha512}  /tmp/bitcoin-roots.tar.gz" | sha512sum -c -; \
+    tar -xzf /tmp/bitcoin-roots.tar.gz -C /tmp; \
+    install -Dm0755 "/tmp/bitcoin-roots-${ROOTS_VERSION}/bin/bitcoind" /bin/bitcoind; \
+    install -Dm0755 "/tmp/bitcoin-roots-${ROOTS_VERSION}/bin/bitcoin-cli" /bin/bitcoin-cli; \
+    install -Dm0755 "/tmp/bitcoin-roots-${ROOTS_VERSION}/bin/bitcoin" /bin/bitcoin; \
+    install -Dm0755 "/tmp/bitcoin-roots-${ROOTS_VERSION}/libexec/bitcoin-node" /usr/bin/bitcoin-node; \
+    rm -rf /tmp/bitcoin-roots.tar.gz "/tmp/bitcoin-roots-${ROOTS_VERSION}"
 
 ##########################################################
 # Dependencies layer — install every workspace deps
@@ -51,41 +68,23 @@ WORKDIR /repo/apps/backend
 
 VOLUME /data
 
-# Bitcoin Core binaries:
+# Bitcoin Roots binaries:
 # - bitcoind: normal monolithic daemon
 # - bitcoin-cli: RPC client used by the backend and manual container execs
-# - bitcoin + bitcoin-node: multiprocess IPC mode, available in bundled v30.2+ releases
-RUN mkdir -p /opt/bitcoind/v31.1 /opt/bitcoind/v31.0 /opt/bitcoind/v30.3 /opt/bitcoind/v30.2 /opt/bitcoind/v30.0 /opt/bitcoind/v29.4 /opt/bitcoind/v29.2
-COPY --from=bitcoind_31_1 /bin/bitcoind     /opt/bitcoind/v31.1/bitcoind
-COPY --from=bitcoind_31_1 /bin/bitcoin-cli  /opt/bitcoind/v31.1/bitcoin-cli
-COPY --from=bitcoind_31_1 /bin/bitcoin      /opt/bitcoind/v31.1/bitcoin
-COPY --from=bitcoind_31_1 /usr/bin/bitcoin-node /opt/bitcoind/v31.1/bitcoin-node
-COPY --from=bitcoind_31_0 /bin/bitcoind     /opt/bitcoind/v31.0/bitcoind
-COPY --from=bitcoind_31_0 /bin/bitcoin-cli  /opt/bitcoind/v31.0/bitcoin-cli
-COPY --from=bitcoind_31_0 /bin/bitcoin      /opt/bitcoind/v31.0/bitcoin
-COPY --from=bitcoind_31_0 /usr/bin/bitcoin-node /opt/bitcoind/v31.0/bitcoin-node
-COPY --from=bitcoind_30_3 /bin/bitcoind     /opt/bitcoind/v30.3/bitcoind
-COPY --from=bitcoind_30_3 /bin/bitcoin-cli  /opt/bitcoind/v30.3/bitcoin-cli
-COPY --from=bitcoind_30_3 /bin/bitcoin      /opt/bitcoind/v30.3/bitcoin
-COPY --from=bitcoind_30_3 /usr/bin/bitcoin-node /opt/bitcoind/v30.3/bitcoin-node
-COPY --from=bitcoind_30_2 /bin/bitcoind     /opt/bitcoind/v30.2/bitcoind
-COPY --from=bitcoind_30_2 /bin/bitcoin-cli  /opt/bitcoind/v30.2/bitcoin-cli
-COPY --from=bitcoind_30_2 /bin/bitcoin      /opt/bitcoind/v30.2/bitcoin
-COPY --from=bitcoind_30_2 /usr/bin/bitcoin-node /opt/bitcoind/v30.2/bitcoin-node
-COPY --from=bitcoind_30_0 /bin/bitcoind     /opt/bitcoind/v30.0/bitcoind
-COPY --from=bitcoind_30_0 /bin/bitcoin-cli  /opt/bitcoind/v30.0/bitcoin-cli
-COPY --from=bitcoind_29_4 /bin/bitcoind     /opt/bitcoind/v29.4/bitcoind
-COPY --from=bitcoind_29_4 /bin/bitcoin-cli  /opt/bitcoind/v29.4/bitcoin-cli
-COPY --from=bitcoind_29_2 /bin/bitcoind     /opt/bitcoind/v29.2/bitcoind
-COPY --from=bitcoind_29_2 /bin/bitcoin-cli  /opt/bitcoind/v29.2/bitcoin-cli
+# - bitcoin + bitcoin-node: multiprocess IPC mode
+RUN mkdir -p /opt/bitcoind/v30.3-roots.1
+COPY --from=bitcoind_30_3_roots_1 /bin/bitcoind         /opt/bitcoind/v30.3-roots.1/bitcoind
+COPY --from=bitcoind_30_3_roots_1 /bin/bitcoin-cli      /opt/bitcoind/v30.3-roots.1/bitcoin-cli
+COPY --from=bitcoind_30_3_roots_1 /bin/bitcoin          /opt/bitcoind/v30.3-roots.1/bitcoin
+COPY --from=bitcoind_30_3_roots_1 /usr/bin/bitcoin-node /opt/bitcoind/v30.3-roots.1/bitcoin-node
 
 # Give 1000:1000 write permissions to /opt/bitcoind itself so we can flip
 # the current-version symlink while the container runs as 1000:1000.
 RUN chown 1000:1000 /opt/bitcoind
 
-# Symbolic links for default Bitcoin Core binaries
-# By default we point to the latest version of Bitcoin Core
-RUN ln -sfn /opt/bitcoind/v31.1 /opt/bitcoind/current
+# Symbolic links for default Bitcoin Roots binaries
+# By default we point to the latest version of Bitcoin Roots
+RUN ln -sfn /opt/bitcoind/v30.3-roots.1 /opt/bitcoind/current
 RUN ln -sfn /opt/bitcoind/current/bitcoind     /usr/local/bin/bitcoind
 RUN ln -sfn /opt/bitcoind/current/bitcoin-cli  /usr/local/bin/bitcoin-cli
 RUN ln -sfn /opt/bitcoind/current/bitcoin      /usr/local/bin/bitcoin
@@ -137,41 +136,23 @@ COPY --from=app-builder /repo/apps/ui/dist ./dist/public
 COPY --from=app-builder /repo/libs/settings/dist ./libs/settings/dist
 COPY --from=app-builder /repo/libs/shared-types/dist ./libs/shared-types/dist
 
-# Bitcoin Core binaries:
+# Bitcoin Roots binaries:
 # - bitcoind: normal monolithic daemon
 # - bitcoin-cli: RPC client used by the backend and manual container execs
-# - bitcoin + bitcoin-node: multiprocess IPC mode, available in bundled v30.2+ releases
-RUN mkdir -p /opt/bitcoind/v31.1 /opt/bitcoind/v31.0 /opt/bitcoind/v30.3 /opt/bitcoind/v30.2 /opt/bitcoind/v30.0 /opt/bitcoind/v29.4 /opt/bitcoind/v29.2
-COPY --from=bitcoind_31_1 /bin/bitcoind     /opt/bitcoind/v31.1/bitcoind
-COPY --from=bitcoind_31_1 /bin/bitcoin-cli  /opt/bitcoind/v31.1/bitcoin-cli
-COPY --from=bitcoind_31_1 /bin/bitcoin      /opt/bitcoind/v31.1/bitcoin
-COPY --from=bitcoind_31_1 /usr/bin/bitcoin-node /opt/bitcoind/v31.1/bitcoin-node
-COPY --from=bitcoind_31_0 /bin/bitcoind     /opt/bitcoind/v31.0/bitcoind
-COPY --from=bitcoind_31_0 /bin/bitcoin-cli  /opt/bitcoind/v31.0/bitcoin-cli
-COPY --from=bitcoind_31_0 /bin/bitcoin      /opt/bitcoind/v31.0/bitcoin
-COPY --from=bitcoind_31_0 /usr/bin/bitcoin-node /opt/bitcoind/v31.0/bitcoin-node
-COPY --from=bitcoind_30_3 /bin/bitcoind     /opt/bitcoind/v30.3/bitcoind
-COPY --from=bitcoind_30_3 /bin/bitcoin-cli  /opt/bitcoind/v30.3/bitcoin-cli
-COPY --from=bitcoind_30_3 /bin/bitcoin      /opt/bitcoind/v30.3/bitcoin
-COPY --from=bitcoind_30_3 /usr/bin/bitcoin-node /opt/bitcoind/v30.3/bitcoin-node
-COPY --from=bitcoind_30_2 /bin/bitcoind     /opt/bitcoind/v30.2/bitcoind
-COPY --from=bitcoind_30_2 /bin/bitcoin-cli  /opt/bitcoind/v30.2/bitcoin-cli
-COPY --from=bitcoind_30_2 /bin/bitcoin      /opt/bitcoind/v30.2/bitcoin
-COPY --from=bitcoind_30_2 /usr/bin/bitcoin-node /opt/bitcoind/v30.2/bitcoin-node
-COPY --from=bitcoind_30_0 /bin/bitcoind     /opt/bitcoind/v30.0/bitcoind
-COPY --from=bitcoind_30_0 /bin/bitcoin-cli  /opt/bitcoind/v30.0/bitcoin-cli
-COPY --from=bitcoind_29_4 /bin/bitcoind     /opt/bitcoind/v29.4/bitcoind
-COPY --from=bitcoind_29_4 /bin/bitcoin-cli  /opt/bitcoind/v29.4/bitcoin-cli
-COPY --from=bitcoind_29_2 /bin/bitcoind     /opt/bitcoind/v29.2/bitcoind
-COPY --from=bitcoind_29_2 /bin/bitcoin-cli  /opt/bitcoind/v29.2/bitcoin-cli
+# - bitcoin + bitcoin-node: multiprocess IPC mode
+RUN mkdir -p /opt/bitcoind/v30.3-roots.1
+COPY --from=bitcoind_30_3_roots_1 /bin/bitcoind         /opt/bitcoind/v30.3-roots.1/bitcoind
+COPY --from=bitcoind_30_3_roots_1 /bin/bitcoin-cli      /opt/bitcoind/v30.3-roots.1/bitcoin-cli
+COPY --from=bitcoind_30_3_roots_1 /bin/bitcoin          /opt/bitcoind/v30.3-roots.1/bitcoin
+COPY --from=bitcoind_30_3_roots_1 /usr/bin/bitcoin-node /opt/bitcoind/v30.3-roots.1/bitcoin-node
 
 # Give 1000:1000 write permissions to /opt/bitcoind itself so we can flip
 # the current-version symlink while the container runs as 1000:1000.
 RUN chown 1000:1000 /opt/bitcoind
 
-# Symbolic links for default Bitcoin Core binaries
-# By default we point to the latest version of Bitcoin Core
-RUN ln -sfn /opt/bitcoind/v31.1 /opt/bitcoind/current
+# Symbolic links for default Bitcoin Roots binaries
+# By default we point to the latest version of Bitcoin Roots
+RUN ln -sfn /opt/bitcoind/v30.3-roots.1 /opt/bitcoind/current
 RUN ln -sfn /opt/bitcoind/current/bitcoind     /usr/local/bin/bitcoind
 RUN ln -sfn /opt/bitcoind/current/bitcoin-cli  /usr/local/bin/bitcoin-cli
 RUN ln -sfn /opt/bitcoind/current/bitcoin      /usr/local/bin/bitcoin

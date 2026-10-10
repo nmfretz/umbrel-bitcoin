@@ -16,7 +16,7 @@ import {
 	BITCOIN_CORE_CURRENT_SYMLINK,
 } from '../../lib/paths.js'
 
-const IPC_MIN_BITCOIN_CORE_VERSION = 'v30.2' satisfies (typeof AVAILABLE_BITCOIN_CORE_VERSIONS)[number]
+const IPC_MIN_BITCOIN_CORE_VERSION = 'v30.3-roots.1' satisfies (typeof AVAILABLE_BITCOIN_CORE_VERSIONS)[number]
 
 // Version helpers
 // TODO: determine whether these would be better as async/await (and therefor entire start() as well)
