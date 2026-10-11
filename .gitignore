@@ -7,3 +7,4 @@ dist
 # App data during dev
 # includes __node_modules_linux__ deps cache
 data
+!umbrel/bitcoin-roots/data/

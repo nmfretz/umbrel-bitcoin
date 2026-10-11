@@ -15,6 +15,9 @@ services:
   # In production the React bundle is baked into backend, but in dev we have a separate ui container for vite hot-reload.
   backend:
     user: '1000:1000'
+    depends_on:
+      tor:
+        condition: service_healthy
     build:
       context: .
       dockerfile: apps/backend/Dockerfile
@@ -23,7 +26,7 @@ services:
     volumes:
       - .:/repo # live source for hot reload
       - ./data/__node_modules_linux__:/repo/node_modules # deps cache shared with the ui container
-      - ./data:/data # persistent app, bitcoin, i2pd dirs
+      - ${ROOTS_DATA_DIR:-./data}:/data # persistent app, bitcoin, i2pd dirs
 
     # We install workspaces only when package-lock.json changes (uses hash guard).
     # TODO: handle changes to non-root package.json files.
@@ -56,7 +59,6 @@ services:
       # BITCOIN CORE BINARY SETTINGS
       # BITCOIND_BIN: bitcoind-binary-path-override
       # BITCOIN_BIN: bitcoin-wrapper-binary-path-override
-      BITCOIND_EXTRA_ARGS: '-deprecatedrpc=create_bdb' # used to pass extra startup flags to Bitcoin Core
 
       # BITCOIND CONF FILE SETTINGS
       APPS_SUBNET: '10.21.0.0/16' # used for rpcallowip
@@ -83,8 +85,8 @@ services:
 
       # CONNECTION DETAILS (shown to user in the connect modal)
       DEVICE_DOMAIN_NAME: 127.0.0.1
-      P2P_HIDDEN_SERVICE: somehiddenservice
-      RPC_HIDDEN_SERVICE: someotherhiddenservice
+      P2P_HIDDEN_SERVICE_FILE: /data/tor/p2p/hostname
+      RPC_HIDDEN_SERVICE_FILE: /data/tor/rpc/hostname
 
       # DEV ONLY SETTINGS (not needed in production)
       DEFAULT_CHAIN: regtest # dev override to set the chain on first start to non-mainnet.
@@ -116,34 +118,24 @@ services:
     networks: [devnet]
 
   tor:
-    image: getumbrel/tor:0.4.7.8@sha256:2ace83f22501f58857fa9b403009f595137fa2e7986c4fda79d82a8119072b6a
-    user: '1000:1000' # match bind-mount ownership
+    image: ghcr.io/getumbrel/tor:0.4.9.11@sha256:e382b8629c0dfef6ceb396b062622d4e4e955b19d6f16b883fd2c0723ad5671a
+    user: '1000:1000'
     restart: on-failure
-    # no volume in dev so Tor state is ephemeral
-    # uses /tmp so non-root user can write torrc + keys
+    entrypoint: ['bash', '/scripts/tor-entrypoint.sh']
     environment:
-      HOME: '/tmp'
-    # creates a working torrc file in /tmp/torrc
-    entrypoint: >
-      bash -c '
-        TORRC=/tmp/torrc
-        PASS="supersecretpassword"
-        HASH=$$(tor --hash-password "$$PASS" | tail -n1)
-
-        # overwrite torrc with minimal dev settings
-        {
-          echo "SocksPort 0.0.0.0:9050"
-          echo "ControlPort 0.0.0.0:9051"
-          echo "CookieAuthentication 1"
-          echo "CookieAuthFileGroupReadable 1"
-          echo "HashedControlPassword $$HASH"
-        } > "$$TORRC"
-
-        exec tor -f "$$TORRC"
-      '
+      TOR_CONTROL_PASSWORD: supersecretpassword
+      BITCOIND_IP: 10.21.21.8
+    volumes:
+      - ./umbrel/bitcoin-roots/hooks/tor-entrypoint.sh:/scripts/tor-entrypoint.sh:ro
+      - ${ROOTS_DATA_DIR:-./data}:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c "echo > /dev/tcp/127.0.0.1/9051"']
+      interval: 5s
+      timeout: 3s
+      retries: 20
     networks:
       devnet:
-        ipv4_address: 10.21.22.10 # matches existing APP_BITCOIN_TOR_PROXY_IP on umbrelOS app store
+        ipv4_address: 10.21.22.10
 
   i2p:
     image: purplei2p/i2pd:release-2.44.0@sha256:d154a599793c393cf9c91f8549ba7ece0bb40e5728e1813aa6dd4c210aa606f6
@@ -151,7 +143,7 @@ services:
     command: --sam.enabled=true --sam.address=0.0.0.0 --sam.port=7656 --loglevel=error
     restart: on-failure
     volumes:
-      - ./data/i2pd:/home/i2pd/data
+      - ${ROOTS_DATA_DIR:-./data}/i2pd:/home/i2pd/data
     networks:
       devnet:
         ipv4_address: 10.21.22.11 # matches existing APP_BITCOIN_I2P_DAEMON_IP on umbrelOS app store

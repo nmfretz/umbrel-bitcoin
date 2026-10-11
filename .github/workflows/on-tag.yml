@@ -1,84 +1,80 @@
-name: Docker Build and Push
+name: Publish tested images
 on:
   push:
-    tags:
-      - '*'
+    tags: ['v*']
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Image tag to build and push (e.g. 1.0.0)'
+        description: 'Image tag to publish (e.g. v1.4.0-roots.1)'
         required: true
         type: string
 
-# Each architecture is built on a native GitHub-hosted runner (no QEMU
-# emulation), then a manifest job assembles the multi-arch index. This keeps
-# builds in the 5-10 minute range; the emulated single-job variant hung.
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
 
 env:
-  IMAGE: ghcr.io/${{ github.repository }}
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
 
 jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Validate tag
+        run: '[[ "$TAG" =~ ^v[0-9][a-zA-Z0-9_.-]*$ && ${#TAG} -le 110 ]]'
+  checks:
+    needs: validate
+    uses: ./.github/workflows/ci.yml
   build:
-    name: Build and push (${{ matrix.platform }})
+    needs: checks
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: linux/amd64
-            runner: ubuntu-24.04
+          - runner: ubuntu-24.04
             slug: amd64
-          - platform: linux/arm64
-            runner: ubuntu-24.04-arm
+          - runner: ubuntu-24.04-arm
             slug: arm64
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
     permissions:
       contents: read
       packages: write
     steps:
-      - name: Set VERSION and TAG
-        run: |
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
-          echo "TAG=${TAG}" >> $GITHUB_ENV
-          echo "VERSION=${TAG#v}" >> $GITHUB_ENV
-
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-
-      - name: Login to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
-
-      - name: Setup Docker buildx
-        run: docker buildx create --use
-
-      - name: Run Docker buildx
-        run: |
-          docker buildx build \
-            --platform ${{ matrix.platform }} \
-            --file apps/backend/Dockerfile \
-            --build-arg "VERSION=${VERSION}" \
-            --tag "${IMAGE}:${TAG}" \
-            --tag "${IMAGE}:${TAG}-${{ matrix.slug }}" \
-            --push .
-
+      - uses: actions/checkout@v4
+      - name: Set image name
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/backend/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE }}:${{ env.TAG }}-${{ matrix.slug }}
+          cache-from: type=gha,scope=${{ runner.arch }}
   manifest:
-    name: Create multi-arch manifest
     needs: build
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
-      contents: read
       packages: write
     steps:
-      - name: Set TAG
-        run: echo "TAG=${{ github.event.inputs.tag || github.ref_name }}" >> $GITHUB_ENV
-
-      - name: Login to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
-
-      - name: Setup Docker buildx
-        run: docker buildx create --use
-
-      - name: Create and push multi-arch manifest
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - name: Publish multi-architecture manifest
         run: |
-          docker buildx imagetools create \
-            --tag "${IMAGE}:${TAG}" \
-            "${IMAGE}:${TAG}-amd64" \
-            "${IMAGE}:${TAG}-arm64"
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}"
+          docker buildx imagetools create --tag "$IMAGE:$TAG" "$IMAGE:$TAG-amd64" "$IMAGE:$TAG-arm64"
+          docker buildx imagetools inspect "$IMAGE:$TAG" >> "$GITHUB_STEP_SUMMARY"
