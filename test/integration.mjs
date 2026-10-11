@@ -39,8 +39,9 @@ function compose(...command) {
 	})
 }
 const node = (code) => compose('exec', '-T', 'app', 'node', '--input-type=module', '-e', code)
+// The Umbrel package keeps RPC on 8332 even when the test selects regtest.
 const rpc = (method) =>
-	JSON.parse(compose('exec', '-T', 'app', 'bitcoin-cli', '-datadir=/data/bitcoin', '-regtest', method))
+	JSON.parse(compose('exec', '-T', 'app', 'bitcoin-cli', '-datadir=/data/bitcoin', '-regtest', '-rpcport=8332', method))
 
 async function until(check) {
 	let failure
