@@ -1,4 +1,4 @@
-> **Bitcoin Roots fork.** This repository builds the Umbrel Bitcoin Node app powered by [Bitcoin Roots](https://bitcoinroots.org) ([LuganoPlanB/bitcoin-roots](https://github.com/LuganoPlanB/bitcoin-roots)) instead of Bitcoin Core. It tracks [`getumbrel/umbrel-bitcoin`](https://github.com/getumbrel/umbrel-bitcoin) and changes only what is needed to swap the node: the bundled binaries (downloaded and verified from Bitcoin Roots releases in `apps/backend/Dockerfile`), the bundled version list, and version-gated settings metadata and defaults in `libs/settings/settings.meta.ts`. Images are published to `ghcr.io/tiero/umbrel-bitcoin-roots` and consumed by the `bitcoin-roots` Umbrel App Store package.
+> **Bitcoin Roots.** This repository builds the Umbrel Bitcoin Node app powered by [Bitcoin Roots](https://plan-b.foundation/bitcoin-roots) ([LuganoPlanB/bitcoin-roots](https://github.com/LuganoPlanB/bitcoin-roots)) a patched version of Bitcoin Core for improved privacy and maintainability on a self-hosted node. It tracks [`getumbrel/umbrel-bitcoin`](https://github.com/getumbrel/umbrel-bitcoin) and changes only what is needed to swap the node: the bundled binaries (downloaded and verified from Bitcoin Roots releases in `apps/backend/Dockerfile`), the bundled version list, and version-gated settings metadata and defaults in `libs/settings/settings.meta.ts`. Images are published to `ghcr.io/tiero/umbrel-bitcoin-roots` and consumed by the `bitcoin-roots` Umbrel App Store package.
 
 <p align="center">
   <a href="https://apps.umbrel.com/app/bitcoin">
@@ -6,7 +6,7 @@
   </a>
   <h1 align="center">Bitcoin Node</h1>
   <p align="center">
-    Run a Bitcoin node on your umbrelOS personal server. An official app by Umbrel. Powered by Bitcoin Core.
+    Run a Bitcoin node on your umbrelOS personal server. An app by the Plan-B Foundation. Powered by Bitcoin Roots.
     <br />
     <a href="https://umbrel.com"><strong>umbrel.com »</strong></a>
     <br />
@@ -28,7 +28,7 @@
 
 ## Getting started
 
-This app can be installed in one click from the [Umbrel App Store](https://apps.umbrel.com/app/bitcoin).
+This app can be installed in one click from the [Umbrel App Store](https://apps.umbrel.com/app/bitcoin-roots).
 
 ---
 
