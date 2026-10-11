@@ -43,7 +43,9 @@ RUN set -eux; \
 # Dependencies layer — install every workspace deps
 # Functions as a shared cache for dev & app-builder stages
 ##########################################################
-FROM node:24.19.0-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03 AS deps
+# Roots release binaries require GLIBC >= 2.38 and GLIBCXX >= 3.4.32.
+# Pin Trixie explicitly: the unqualified Node slim image uses older libraries.
+FROM node:24.19.0-trixie-slim@sha256:ab3eebe934147fee049b5eb83c570f68c849a13c930bdfa482de99fcdfa3b3de AS deps
 WORKDIR /repo
 
 # Copy only dependency manifests to keep this layer cache-friendly
@@ -90,6 +92,9 @@ RUN ln -sfn /opt/bitcoind/current/bitcoin-cli  /usr/local/bin/bitcoin-cli
 RUN ln -sfn /opt/bitcoind/current/bitcoin      /usr/local/bin/bitcoin
 RUN ln -sfn /opt/bitcoind/current/bitcoin-node /usr/local/bin/bitcoin-node
 
+# Fail the build immediately if a bundled binary cannot load its shared libraries.
+RUN bitcoind --version && bitcoin-cli --version && bitcoin -m node --version
+
 # Symlink for datadir so bitcoin-cli auto-finds the RPC cookie
 # Allows exec'ing bitcoin-cli inside the container without specifying credentials
 RUN ln -sfn /data/bitcoin /root/.bitcoin
@@ -115,7 +120,7 @@ RUN tsc -b libs/shared-types libs/settings apps/backend \
 ########################################
 # runtime stage — final production image
 ########################################
-FROM node:24.19.0-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03 AS runtime
+FROM node:24.19.0-trixie-slim@sha256:ab3eebe934147fee049b5eb83c570f68c849a13c930bdfa482de99fcdfa3b3de AS runtime
 WORKDIR /app
 
 # Install production dependencies only
@@ -157,6 +162,9 @@ RUN ln -sfn /opt/bitcoind/current/bitcoind     /usr/local/bin/bitcoind
 RUN ln -sfn /opt/bitcoind/current/bitcoin-cli  /usr/local/bin/bitcoin-cli
 RUN ln -sfn /opt/bitcoind/current/bitcoin      /usr/local/bin/bitcoin
 RUN ln -sfn /opt/bitcoind/current/bitcoin-node /usr/local/bin/bitcoin-node
+
+# Exercise the daemon, RPC client, and multiprocess wrapper on the target platform.
+RUN bitcoind --version && bitcoin-cli --version && bitcoin -m node --version
 
 # Symlink for datadir so bitcoin-cli auto-finds the RPC cookie
 # Allows exec'ing bitcoin-cli inside the container without specifying credentials
