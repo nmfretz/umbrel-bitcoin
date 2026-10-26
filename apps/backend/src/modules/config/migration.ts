@@ -147,7 +147,7 @@ export async function migrateLegacyConfig(): Promise<SettingsSchema | undefined>
 		if (error instanceof ZodError) {
 			// This should be extremely rare because we defensively coerce the values to the new schema
 			// but could still happen if, for example, the user manually edits the chain to an invalid value like "mainnet"
-			const summary = error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
+			const summary = error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
 			throw new Error(`[migration] Validation of legacy config failed – ${summary}`)
 		}
 		throw new Error('[migration] Unexpected error during migration of legacy config', {cause: error as Error})

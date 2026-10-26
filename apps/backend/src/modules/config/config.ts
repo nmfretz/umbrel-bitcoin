@@ -110,7 +110,7 @@ async function loadAndValidateSettings(): Promise<SettingsSchema> {
 function generateBaseConfLines(settings: SettingsSchema): string[] {
 	const lines: string[] = []
 
-	for (const key of Object.keys(settings) as (keyof SettingsSchema)[]) {
+	for (const key of Object.keys(settings)) {
 		const value = settings[key]
 
 		// Skip settings that should not be written to bitcoin.conf (e.g, bitcoin core version)

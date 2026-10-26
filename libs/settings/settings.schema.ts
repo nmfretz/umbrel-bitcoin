@@ -4,9 +4,15 @@
 import {z} from 'zod'
 import {settingsMetadataForVersion, resolveVersion, type SelectedVersion, type Option} from './settings.meta.js'
 
-function buildSettingsSchema(settingsMetadata: Record<string, Option>): z.ZodObject<Record<string, z.ZodTypeAny>> {
+// Metadata defines the fields at runtime; retain the dynamic output type of Zod 3's ZodTypeAny.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DynamicSettingSchema = z.ZodType<any>
+
+function buildSettingsSchema(
+	settingsMetadata: Record<string, Option>,
+): z.ZodObject<Record<string, DynamicSettingSchema>> {
 	// We prepare an (initially empty) map that will hold one Zod schema per setting key.
-	const schemaMap: Record<string, z.ZodTypeAny> = {}
+	const schemaMap: Record<string, DynamicSettingSchema> = {}
 
 	// We go through every entry in settingsMetadata and build the appropriate Zod validator based on `kind`.
 	for (const key of Object.keys(settingsMetadata)) {
@@ -14,7 +20,7 @@ function buildSettingsSchema(settingsMetadata: Record<string, Option>): z.ZodObj
 		switch (meta.kind) {
 			// numbers (e.g., dbcache)
 			case 'number': {
-				let schema = z.number({invalid_type_error: `${meta.bitcoinLabel} must be a number`})
+				let schema = z.number({error: `${meta.bitcoinLabel} must be a number`})
 
 				// Enforce integer only when step implies integer inputs (default or integer step)
 				const stepImpliesInteger = meta.step === undefined || Number.isInteger(meta.step)
@@ -37,14 +43,16 @@ function buildSettingsSchema(settingsMetadata: Record<string, Option>): z.ZodObj
 
 			// toggles (booleans) (e.g., txindex)
 			case 'toggle': {
-				schemaMap[key] = z.boolean({invalid_type_error: `${meta.bitcoinLabel} must be true or false`})
+				schemaMap[key] = z.boolean({error: `${meta.bitcoinLabel} must be true or false`})
 				break
 			}
 
 			// multi-select (array of enums) (e.g., onlynet)
 			case 'multi': {
 				const values = meta.options.map((o: {value: string}) => o.value) as [string, ...string[]]
-				const base = z.array(z.enum(values))
+				const base = z.array(z.enum(values)).max(values.length, {
+					message: `${meta.bitcoinLabel}: select no more than ${values.length} options`,
+				})
 				schemaMap[key] =
 					(meta.requireAtLeastOne ?? true)
 						? base.nonempty({message: `${meta.bitcoinLabel}: select at least one`})
