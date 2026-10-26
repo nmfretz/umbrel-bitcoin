@@ -21,7 +21,14 @@ bootBitcoind().catch((error) => {
 })
 
 // Create the HTTP server and register the routes
-const app = Fastify({logger: true})
+const app = Fastify({
+	logger: {
+		redact: {
+			paths: ['req.url'],
+			censor: (value) => (typeof value === 'string' ? value.replace(/([?&]token=)[^&]*/g, '$1[REDACTED]') : value),
+		},
+	},
+})
 
 // CSP
 await app.register(helmet, {

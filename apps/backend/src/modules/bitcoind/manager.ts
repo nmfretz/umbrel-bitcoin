@@ -3,6 +3,7 @@ import {EventEmitter} from 'node:events'
 import {Readable} from 'node:stream'
 import readline from 'node:readline'
 import fse from 'fs-extra'
+import {parseBinaryVersion} from './version.js'
 
 import type {ExitInfo} from '#types'
 import {AVAILABLE_BITCOIN_CORE_VERSIONS, DEFAULT_BITCOIN_CORE_VERSION} from '#settings'
@@ -159,12 +160,9 @@ export class BitcoindManager {
 		this.lastError = err
 	}
 
-	private getBinaryVersionInfo(binary = this.bin) {
+	private getBinaryVersionInfo(binary = this.bin, prefixArgs: string[] = []) {
 		try {
-			const firstLine = execFileSync(binary, ['--version']).toString().split('\n')[0]
-			const implementation = firstLine.replace(/(?:daemon|RPC client)?\s*version.*$/i, '').trim()
-			const version = (firstLine.match(/v\d+\.\d+\.\d+/) ?? ['unknown'])[0]
-			return {implementation, version}
+			return parseBinaryVersion(execFileSync(binary, [...prefixArgs, '--version']).toString())
 		} catch {
 			return {implementation: 'unknown', version: 'unknown'}
 		}
@@ -221,7 +219,7 @@ export class BitcoindManager {
 		const command = this.startCommand(ipcEnabled)
 
 		// Refresh binary version info (the PATH now resolves to the target Bitcoin Core binary)
-		this.versionInfo = this.getBinaryVersionInfo(command.binary)
+		this.versionInfo = this.getBinaryVersionInfo(command.binary, ipcEnabled ? ['-m', 'node'] : [])
 
 		// Clear any previous log tail
 		this.logRing.length = 0
