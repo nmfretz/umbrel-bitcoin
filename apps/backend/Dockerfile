@@ -40,8 +40,7 @@ RUN set -eux; \
     rm -rf /tmp/bitcoin-roots.tar.gz "/tmp/bitcoin-roots-${ROOTS_VERSION}"
 
 ##########################################################
-# Dependencies layer — install every workspace deps
-# Functions as a shared cache for dev & app-builder stages
+# Development dependencies for the target architecture
 ##########################################################
 # Roots release binaries require GLIBC >= 2.38 and GLIBCXX >= 3.4.32.
 # Pin Trixie explicitly: the unqualified Node slim image uses older libraries.
@@ -107,8 +106,15 @@ CMD ["npm","run","dev"]
 #################################################
 # app-builder stage
 #################################################
-FROM deps AS app-builder
+# TypeScript and the bundled UI are architecture-independent. Build them natively
+# so a multi-platform build does not run esbuild through CPU emulation.
+FROM --platform=$BUILDPLATFORM node:24.19.0-trixie-slim@sha256:ab3eebe934147fee049b5eb83c570f68c849a13c930bdfa482de99fcdfa3b3de AS app-builder
 WORKDIR /repo
+COPY package*.json ./
+COPY apps/backend/package*.json apps/backend/
+COPY apps/ui/package*.json apps/ui/
+RUN npm ci --workspaces --include-workspace-root --install-strategy=hoisted
+ENV PATH="/repo/node_modules/.bin:$PATH"
 COPY . .
 
 # build shared libraries (libs/*/dist)
